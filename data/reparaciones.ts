@@ -13,8 +13,8 @@ export interface ModeloReparacion {
 
 const REPARACIONES_BASE: OpcionReparacion[] = [
   { servicio: "Reparación batería", precio: null, demora: "En el día" },
-  { servicio: "Reparación pantalla", precio: null, demora: "En el acto" },
-  { servicio: "Cambio de glass", precio: null, demora: "24 hs" },
+  { servicio: "Reparación pantalla", precio: null, demora: "En el dia" },
+  { servicio: "Cambio de glass", precio: null, demora: "En el dia" },
   { servicio: "Pin de carga / flex", precio: null, demora: "En el día" },
   { servicio: "Cámaras / Face ID", precio: null, demora: "A revisar" },
 ];
