@@ -10,7 +10,8 @@ import {
   MapPin,
 } from "lucide-react";
 import CatalogoRepuestos from "../components/CatalogoRepuestos";
-import BannerWhatsApp from "../components/BannerWhatsApp"
+import BannerWhatsApp from "../components/BannerWhatsApp";
+import MosaicosReparaciones from "../components/MosaicosReparaciones";
 
 // Verificá que las extensiones (.jpeg / .PNG) coincidan exacto con public/images/
 const HERO_IMAGES = [
@@ -265,18 +266,14 @@ export default function Home() {
         </div>
       )}
 
-      {/* SECCIÓN REPARACIONES (próximo paso) */}
+      {/* SECCIÓN REPARACIONES */}
       {seccionActiva === "reparaciones" && (
-        <section className="pt-24 pb-20 px-4 sm:px-6 max-w-7xl mx-auto">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">
-            Reparaciones por modelo
-          </h2>
-          <p className="text-neutral-400 mt-2">
-            Acá vamos a poner los mosaicos interactivos con precios por modelo.
-          </p>
-        </section>
+        <div className="pt-16">
+          <MosaicosReparaciones />
+        </div>
       )}
-      <BannerWhatsApp/>
+
+      <BannerWhatsApp />
     </main>
   );
 }
