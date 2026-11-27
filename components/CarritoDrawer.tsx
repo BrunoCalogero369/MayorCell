@@ -25,7 +25,7 @@ export function BotonCarrito({ className = "" }: { className?: string }) {
       className={`inline-flex items-center gap-2 bg-neutral-900/90 hover:bg-neutral-800 text-white border border-white/15 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer shrink-0 ${className}`}
     >
       <ShoppingCart className="w-4 h-4 text-blue-400" />
-      <span>Carrito</span>
+      <span></span>
       <span className="min-w-5 h-5 px-1.5 rounded-full bg-blue-500 text-white text-[11px] font-bold flex items-center justify-center">
         {totalItems}
       </span>
