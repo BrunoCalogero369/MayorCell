@@ -3,8 +3,12 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import wa from "@/public/images/icons8-whatsapp-48.png";
+import { useCarrito } from "../context/CarritoContext";
 
-export default function Banner() {
+const NUMERO_WHATSAPP = "3417120309";
+
+export default function BannerWhatsApp() {
+  const { abierto } = useCarrito();
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragState = useRef({
     active: false,
@@ -14,6 +18,8 @@ export default function Banner() {
     originX: 0,
     originY: 0,
   });
+
+  if (abierto) return null;
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragState.current = {
@@ -49,8 +55,7 @@ export default function Banner() {
     e.currentTarget.releasePointerCapture(e.pointerId);
 
     if (!dragState.current.moved) {
-      // Cambiá el número por el real del local (sin + ni espacios)
-      window.open("https://wa.me/3417120309", "_blank", "noreferrer");
+      window.open(`https://wa.me/${NUMERO_WHATSAPP}`, "_blank", "noreferrer");
     }
   };
 
@@ -62,7 +67,7 @@ export default function Banner() {
       style={{
         transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
       }}
-      className="fixed bottom-8 right-6 z-[9999] cursor-grab active:cursor-grabbing touch-none select-none"
+      className="fixed bottom-6 right-6 z-40 cursor-grab active:cursor-grabbing touch-none select-none"
     >
       <div className="bg-[#25D366] w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-200 active:scale-95">
         <Image

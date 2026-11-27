@@ -9,17 +9,23 @@ import {
   ImageOff,
   PackageCheck,
   PackageX,
+  ShoppingCart,
+  Check,
   X,
 } from "lucide-react";
 import { REPUESTOS } from "../data/repuestos";
+import { useCarrito } from "../context/CarritoContext";
 
 const ITEMS_POR_PAGINA = 10;
 
 export default function CatalogoRepuestos() {
+  const { agregarItem, setAbierto } = useCarrito();
+
   const [busqueda, setBusqueda] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("Todos");
   const [soloDisponibles, setSoloDisponibles] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
+  const [agregadoId, setAgregadoId] = useState<string | null>(null);
 
   // Extrae categorías únicas automáticamente
   const categorias = useMemo(() => {
@@ -27,16 +33,17 @@ export default function CatalogoRepuestos() {
     return ["Todos", ...unicas];
   }, []);
 
-  // normalizar texto
+  // Normalizar texto sin tildes ni mayúsculas
   function normalizarTexto(texto: string): string {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
+    return texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  }
+
   // Filtra según búsqueda, categoría y stock
-const repuestosFiltrados = useMemo(() => {
+  const repuestosFiltrados = useMemo(() => {
     const consultaNormalizada = normalizarTexto(busqueda);
 
     return REPUESTOS.filter((item) => {
@@ -95,6 +102,18 @@ const repuestosFiltrados = useMemo(() => {
     }
   };
 
+  const handleAgregarAlCarrito = (item: (typeof REPUESTOS)[number]) => {
+    agregarItem({
+      id: item.id,
+      nombre: item.codigo ? `${item.nombre} (${item.codigo})` : item.nombre,
+      precio: item.precio,
+    });
+    setAgregadoId(item.id);
+    window.setTimeout(() => {
+      setAgregadoId((prev) => (prev === item.id ? null : prev));
+    }, 1100);
+  };
+
   return (
     <section
       id="repuestos"
@@ -115,18 +134,30 @@ const repuestosFiltrados = useMemo(() => {
           </p>
         </div>
 
-        {/* Toggle solo en stock */}
-        <label className="inline-flex items-center gap-2.5 cursor-pointer select-none self-start md:self-auto bg-neutral-900 border border-white/10 px-4 py-2.5 rounded-xl text-xs sm:text-sm text-neutral-300 hover:border-white/20 transition-colors">
-          <input
-            type="checkbox"
-            checked={soloDisponibles}
-            onChange={(e) =>
-              handleCambioFiltro(busqueda, categoriaActiva, e.target.checked)
-            }
-            className="rounded border-neutral-700 bg-neutral-800 text-blue-500 focus:ring-blue-500"
-          />
-          <span>Mostrar solo con stock disponible</span>
-        </label>
+        <div className="flex flex-wrap items-center gap-2.5 self-start md:self-auto">
+          {/* Toggle solo en stock */}
+          <label className="inline-flex items-center gap-2.5 cursor-pointer select-none bg-neutral-900 border border-white/10 px-4 py-2.5 rounded-xl text-xs sm:text-sm text-neutral-300 hover:border-white/20 transition-colors">
+            <input
+              type="checkbox"
+              checked={soloDisponibles}
+              onChange={(e) =>
+                handleCambioFiltro(busqueda, categoriaActiva, e.target.checked)
+              }
+              className="rounded border-neutral-700 bg-neutral-800 text-blue-500 focus:ring-blue-500"
+            />
+            <span>Mostrar solo con stock disponible</span>
+          </label>
+
+          {/* Acceso directo al ticket */}
+          <button
+            type="button"
+            onClick={() => setAbierto(true)}
+            className="inline-flex items-center gap-2 bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>Ver ticket</span>
+          </button>
+        </div>
       </div>
 
       {/* BARRA DE BÚSQUEDA + PILLS DE CATEGORÍA */}
@@ -199,6 +230,7 @@ const repuestosFiltrados = useMemo(() => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
           {repuestosPagina.map((item) => {
             const hayStock = item.disponibles > 0;
+            const recienAgregado = agregadoId === item.id;
 
             return (
               <article
@@ -243,8 +275,8 @@ const repuestosFiltrados = useMemo(() => {
                   </div>
                 </div>
 
-                {/* PIE DE TARJETA: STOCK Y PRECIO */}
-                <div className="px-4 pb-4 pt-2 border-t border-white/5 flex flex-col gap-2">
+                {/* PIE DE TARJETA: STOCK, PRECIO Y AGREGAR AL CARRITO */}
+                <div className="px-4 pb-4 pt-2 border-t border-white/5 flex flex-col gap-2.5">
                   <div className="flex items-center justify-between text-xs">
                     {hayStock ? (
                       <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
@@ -265,7 +297,7 @@ const repuestosFiltrados = useMemo(() => {
                     )}
                   </div>
 
-                  <div className="pt-1">
+                  <div>
                     {item.precio !== null ? (
                       <span className="text-xl font-extrabold text-white tracking-tight">
                         {formatearPrecio(item.precio)}
@@ -276,6 +308,28 @@ const repuestosFiltrados = useMemo(() => {
                       </span>
                     )}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleAgregarAlCarrito(item)}
+                    className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      recienAgregado
+                        ? "bg-emerald-500 text-neutral-950"
+                        : "bg-white/10 hover:bg-white text-white hover:text-neutral-950 border border-white/10"
+                    }`}
+                  >
+                    {recienAgregado ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Agregado al ticket</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-3.5 h-3.5" />
+                        <span>Agregar al carrito</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </article>
             );
